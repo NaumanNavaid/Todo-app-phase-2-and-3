@@ -1,0 +1,343 @@
+openapi: 3.0.3
+info:
+  title: TodoApp Tasks API
+  description: Task management endpoints for TodoApp CRUD operations
+  version: 1.0.0
+  contact:
+    name: TodoApp API Team
+
+servers:
+  - url: http://localhost:8000
+    description: Development server
+  - url: https://your-huggingface-space.hf.space
+    description: Production server (Hugging Face)
+
+tags:
+  - name: Tasks
+    description: Task CRUD operations
+
+paths:
+  /api/tasks:
+    get:
+      tags: [Tasks]
+      summary: List all tasks
+      description: Retrieve all tasks for the authenticated user, optionally filtered by status
+      operationId: getTasks
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          description: Filter by task status
+          required: false
+          schema:
+            type: string
+            enum: [pending, done]
+          example: "pending"
+      responses:
+        '200':
+          description: List of tasks retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TaskResponse'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+
+    post:
+      tags: [Tasks]
+      summary: Create a new task
+      description: Create a new task with title and optional description
+      operationId: createTask
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskCreate'
+            examples:
+              minimal_task:
+                summary: Task with title only
+                value:
+                  title: "Buy groceries"
+              full_task:
+                summary: Task with description
+                value:
+                  title: "Complete project proposal"
+                  description: "Write and submit the Q1 project proposal document"
+      responses:
+        '200':
+          description: Task created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+  /api/tasks/{task_id}:
+    get:
+      tags: [Tasks]
+      summary: Get a single task
+      description: Retrieve a specific task by ID
+      operationId: getTask
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          description: Task UUID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Task retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+        '401':
+          description: Not authenticated
+        '404':
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+              example:
+                detail:
+                  error: "Task not found"
+
+    put:
+      tags: [Tasks]
+      summary: Update a task
+      description: Update task fields (title, description, status)
+      operationId: updateTask
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          description: Task UUID
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskUpdate'
+            examples:
+              update_title:
+                summary: Update title and description
+                value:
+                  title: "Updated task title"
+                  description: "Updated description"
+              mark_done:
+                summary: Mark task as complete
+                value:
+                  status: "done"
+      responses:
+        '200':
+          description: Task updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+        '401':
+          description: Not authenticated
+        '404':
+          description: Task not found
+        '422':
+          description: Validation error
+
+    delete:
+      tags: [Tasks]
+      summary: Delete a task
+      description: Permanently delete a task
+      operationId: deleteTask
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          description: Task UUID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Task deleted successfully (no content)
+        '401':
+          description: Not authenticated
+        '404':
+          description: Task not found
+
+  /api/tasks/{task_id}/toggle:
+    patch:
+      tags: [Tasks]
+      summary: Toggle task status
+      description: Toggle task status between pending and done
+      operationId: toggleTask
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          description: Task UUID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Task status toggled successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+        '401':
+          description: Not authenticated
+        '404':
+          description: Task not found
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from /api/auth/login
+
+  schemas:
+    TaskCreate:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: Task title
+          example: "Buy groceries"
+        description:
+          type: string
+          maxLength: 1000
+          description: Optional detailed description
+          example: "Get milk, eggs, and bread from the store"
+
+    TaskUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: Updated task title
+          example: "Updated task title"
+        description:
+          type: string
+          maxLength: 1000
+          description: Updated task description
+          example: "Updated description"
+        status:
+          type: string
+          enum: [pending, done]
+          description: Task completion status
+          example: "done"
+
+    TaskResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique task identifier
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        user_id:
+          type: string
+          format: uuid
+          description: ID of the user who owns this task
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        title:
+          type: string
+          description: Task title
+          example: "Buy groceries"
+        description:
+          type: string
+          nullable: true
+          description: Task description (null if not provided)
+          example: "Get milk, eggs, and bread"
+          nullable: true
+        status:
+          type: string
+          enum: [pending, done]
+          description: Task completion status
+          example: "pending"
+        created_at:
+          type: string
+          format: date-time
+          description: Task creation timestamp
+          example: "2026-01-21T10:30:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+          example: "2026-01-21T11:30:00Z"
+
+    ErrorDetail:
+      type: object
+      properties:
+        detail:
+          oneOf:
+            - type: string
+              example: "Could not validate credentials"
+            - type: object
+              properties:
+                error:
+                  type: string
+                  example: "Task not found"
+
+    ValidationError:
+      type: object
+      properties:
+        detail:
+          type: array
+          items:
+            type: object
+            properties:
+              loc:
+                type: array
+                items:
+                  type: string
+                example: ["body", "title"]
+              msg:
+                type: string
+                example: "Field required"
+              type:
+                type: string
+                example: "value_error.missing"

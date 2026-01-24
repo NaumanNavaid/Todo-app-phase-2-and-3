@@ -1,0 +1,11 @@
+{
+  "version": "1.0",
+  "tasks": [
+    {
+      "id": 1,
+      "description": "Valid task",
+      "status": "pending"
+      "missing closing brace - this is corrupted JSON
+    }
+  ]
+}

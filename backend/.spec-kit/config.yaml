@@ -1,0 +1,38 @@
+# Spec-Kit Plus Configuration
+name: todo-api
+version: "2.0"
+description: FastAPI Todo Application with Authentication and PostgreSQL
+
+structure:
+  specs_dir: specs
+  features_dir: specs/features
+  api_dir: specs/api
+  database_dir: specs/database
+  ui_dir: specs/ui
+
+phases:
+  - name: phase1-console
+    status: completed
+    features: [task-crud-cli]
+
+  - name: phase2-api
+    status: in_progress
+    features: [task-crud, authentication, database]
+
+  - name: phase3-frontend
+    status: pending
+    features: [task-crud, authentication, database, ui-integration]
+
+tech_stack:
+  backend:
+    framework: FastAPI
+    language: Python
+    orm: SQLModel
+    database: Neon PostgreSQL
+    auth: JWT + bcrypt
+
+  frontend:
+    framework: Next.js 14
+    language: TypeScript
+    styling: Tailwind CSS
+    status: planned

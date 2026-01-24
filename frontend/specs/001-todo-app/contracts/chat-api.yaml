@@ -1,0 +1,227 @@
+openapi: 3.0.3
+info:
+  title: TodoApp AI Chat API
+  description: AI assistant chat endpoints (placeholder for future backend integration)
+  version: 1.0.0
+  contact:
+    name: TodoApp API Team
+
+servers:
+  - url: http://localhost:8000
+    description: Development server
+  - url: https://your-huggingface-space.hf.space
+    description: Production server (Hugging Face)
+
+tags:
+  - name: Chat
+    description: AI assistant conversation endpoints
+
+paths:
+  /api/chat:
+    post:
+      tags: [Chat]
+      summary: Send message to AI assistant
+      description: Send a user message and receive an AI response
+      operationId: sendMessage
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - message
+              properties:
+                message:
+                  type: string
+                  minLength: 1
+                  maxLength: 5000
+                  description: User's message to the AI
+                  example: "Help me organize my tasks for today"
+            examples:
+              task_help:
+                summary: Ask for task management help
+                value:
+                  message: "Help me organize my tasks for today"
+              productivity:
+                summary: Ask for productivity advice
+                value:
+                  message: "What are some good productivity tips?"
+      responses:
+        '200':
+          description: AI response generated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  response:
+                    type: string
+                    description: AI's response message
+                    example: "I'd be happy to help you organize your tasks! Let's start by prioritizing..."
+                  timestamp:
+                    type: string
+                    format: date-time
+                    description: Response generation timestamp
+                    example: "2026-01-21T10:30:00Z"
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+  /api/chat/history:
+    get:
+      tags: [Chat]
+      summary: Get chat history
+      description: Retrieve conversation history for the authenticated user
+      operationId: getChatHistory
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of messages to retrieve
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+          example: 20
+      responses:
+        '200':
+          description: Chat history retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  session_id:
+                    type: string
+                    format: uuid
+                    description: Chat session identifier
+                    example: "550e8400-e29b-41d4-a716-446655440000"
+                  messages:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ChatMessage'
+                  created_at:
+                    type: string
+                    format: date-time
+                    description: Session creation timestamp
+                    example: "2026-01-21T09:00:00Z"
+        '401':
+          description: Not authenticated
+
+  /api/chat/clear:
+    delete:
+      tags: [Chat]
+      summary: Clear chat history
+      description: Delete all messages in the current chat session
+      operationId: clearChat
+      security:
+        - BearerAuth: []
+      responses:
+        '204':
+          description: Chat history cleared successfully
+        '401':
+          description: Not authenticated
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from /api/auth/login
+
+  schemas:
+    ChatMessage:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique message identifier
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        role:
+          type: string
+          enum: [user, assistant]
+          description: Who sent the message
+          example: "user"
+        content:
+          type: string
+          description: Message text content
+          example: "Help me organize my tasks for today"
+        timestamp:
+          type: string
+          format: date-time
+          description: When the message was sent
+          example: "2026-01-21T10:30:00Z"
+
+    ErrorDetail:
+      type: object
+      properties:
+        detail:
+          type: string
+          example: "Could not validate credentials"
+
+    ValidationError:
+      type: object
+      properties:
+        detail:
+          type: array
+          items:
+            type: object
+            properties:
+              loc:
+                type: array
+                items:
+                  type: string
+                example: ["body", "message"]
+              msg:
+                type: string
+                example: "Field required"
+              type:
+                type: string
+                example: "value_error.missing"
+
+notes:
+  - status: DRAFT
+    description: |
+      This API specification is a placeholder for future AI chat integration.
+
+      **Current Implementation**:
+      - Frontend uses mock responses (see: lib/mock-data.ts, hooks/useChat.ts)
+      - 1-second delay simulates network request
+      - Responses are pre-defined placeholder text
+
+      **Future Integration**:
+      - Backend will implement actual AI service endpoints
+      - Consider streaming responses for better UX
+      - Add conversation context/session management
+      - May add additional parameters (temperature, model selection)
+
+      **Example Frontend Integration**:
+      ```typescript
+      // Current (mock)
+      const mockResponse = await simulateDelay("I'm a demo response");
+
+      // Future (real API)
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ message: userInput })
+      });
+      const data = await response.json();
+      ```
