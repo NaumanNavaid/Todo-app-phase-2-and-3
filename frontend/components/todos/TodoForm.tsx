@@ -12,7 +12,7 @@ import { mockCategories } from '@/lib/mock-data';
 interface TodoFormProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (todo: Omit<Todo, 'id' | 'createdAt' | 'updatedAt' | 'order'>) => void;
+  onSubmit: (todo: Omit<Todo, 'id' | 'createdAt' | 'updatedAt' | 'order' | 'status'>) => void;
   editTodo?: Todo | null;
 }
 
@@ -37,7 +37,6 @@ export function TodoForm({ isOpen, onClose, onSubmit, editTodo }: TodoFormProps)
       category,
       dueDate: dueDate ? new Date(dueDate) : undefined,
       completed: editTodo?.completed || false,
-      order: editTodo?.order || 0,
     });
 
     // Reset form

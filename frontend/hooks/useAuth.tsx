@@ -2,7 +2,17 @@
 
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import type { User, AuthState, LoginCredentials, SignupCredentials } from '@/lib/auth-types';
-import { authApi, type LoginResponse } from '@/lib/api-client';
+import { authApi, type LoginResponse, type User as ApiUser } from '@/lib/api-client';
+
+// Helper to convert API User type to auth User type
+function toAuthUser(apiUser: ApiUser): User {
+  return {
+    id: apiUser.id,
+    email: apiUser.email,
+    name: apiUser.name,
+    createdAt: new Date(apiUser.created_at),
+  };
+}
 
 interface AuthContextType extends AuthState {
   login: (credentials: LoginCredentials) => Promise<void>;
@@ -41,7 +51,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         try {
           // Verify token is still valid by calling /me endpoint
           const currentUser = await authApi.getCurrentUser();
-          setUser(currentUser);
+          setUser(toAuthUser(currentUser));
           setStatus('authenticated');
         } catch (err) {
           // Token is invalid or expired, clear storage
@@ -61,7 +71,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setError(null);
     try {
       const response: LoginResponse = await authApi.login(credentials);
-      setUser(response.user);
+      setUser(toAuthUser(response.user));
       setStatus('authenticated');
       // Token and user are already stored in api-client.ts
     } catch (err) {
@@ -83,7 +93,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         password: credentials.password,
       });
 
-      setUser(loginResponse.user);
+      setUser(toAuthUser(loginResponse.user));
       setStatus('authenticated');
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Signup failed';

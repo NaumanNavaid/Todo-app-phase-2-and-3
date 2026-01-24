@@ -22,6 +22,7 @@ export function useChat() {
       setMessages(data.messages.map((msg) => ({
         ...msg,
         role: msg.role as MessageRole,
+        timestamp: new Date(msg.timestamp),
       })));
       setConversationId(data.session_id);
     } catch (err) {
@@ -32,7 +33,7 @@ export function useChat() {
           id: generateId(),
           role: 'assistant' as MessageRole,
           content: 'Hello! I\'m your AI assistant. I can help you manage your tasks. Try saying "Add a task: Buy groceries" or "Show my tasks".',
-          timestamp: new Date().toISOString(),
+          timestamp: new Date(),
         },
       ]);
     }
@@ -46,7 +47,7 @@ export function useChat() {
       id: generateId(),
       role: 'user' as MessageRole,
       content: content.trim(),
-      timestamp: new Date().toISOString(),
+      timestamp: new Date(),
     };
 
     setMessages((prev) => [...prev, userMessage]);
@@ -68,7 +69,7 @@ export function useChat() {
         id: response.message_id,
         role: 'assistant' as MessageRole,
         content: response.response,
-        timestamp: new Date().toISOString(),
+        timestamp: new Date(),
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
@@ -82,7 +83,7 @@ export function useChat() {
         id: generateId(),
         role: 'assistant' as MessageRole,
         content: `Sorry, I encountered an error: ${errorMessage}`,
-        timestamp: new Date().toISOString(),
+        timestamp: new Date(),
       };
 
       setMessages((prev) => [...prev, errorMsg]);
