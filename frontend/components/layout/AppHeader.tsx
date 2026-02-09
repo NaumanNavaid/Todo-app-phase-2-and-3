@@ -2,6 +2,7 @@
 
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/Button';
+import { LogOut } from 'lucide-react';
 
 // Helper to get initials from name
 function getInitials(name: string): string {
@@ -28,47 +29,40 @@ export function AppHeader() {
   const initials = getInitials(user?.name || '');
 
   return (
-    <header className="bg-white border-b border-slate-200">
+    <header className="bg-card/50 border-b border-border backdrop-blur-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {/* Logo - Solid neutral color instead of gradient */}
-            <div className="w-10 h-10 rounded-xl bg-slate-700 flex items-center justify-center">
+            {/* Logo with gradient */}
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
               <span className="text-xl text-white">✓</span>
             </div>
             <div>
-              <h1 className="text-xl font-bold text-slate-900">TodoApp</h1>
-              <p className="text-xs text-slate-500">Professional Task Manager</p>
+              <h1 className="text-xl font-bold text-foreground">TodoApp</h1>
+              <p className="text-xs text-muted-foreground">Professional Task Manager</p>
             </div>
           </div>
 
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-3">
-              {/* Avatar - Solid neutral color instead of gradient, no shadow */}
-              <div className="w-9 h-9 rounded-full bg-slate-700 flex items-center justify-center">
+              {/* Avatar with gradient */}
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-md">
                 <span className="text-sm font-semibold text-white">
                   {initials}
                 </span>
               </div>
               <div className="hidden sm:block">
-                <p className="text-sm font-medium text-slate-900">
+                <p className="text-sm font-medium text-foreground">
                   {user?.name}
                 </p>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-muted-foreground">
                   {user?.email}
                 </p>
               </div>
             </div>
 
             <Button variant="ghost" size="sm" onClick={logout}>
-              <svg className="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                />
-              </svg>
+              <LogOut className="w-4 h-4 mr-1.5" />
               Logout
             </Button>
           </div>

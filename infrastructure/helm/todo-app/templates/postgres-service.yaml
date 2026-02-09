@@ -1,0 +1,22 @@
+{{- if .Values.postgres.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: postgres
+    chart: {{ template "todo-app.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  type: {{ .Values.postgres.service.type }}
+  clusterIP: None  # Headless service for StatefulSet
+  selector:
+    app: postgres
+  ports:
+  - name: postgres
+    port: {{ .Values.postgres.service.port }}
+    targetPort: {{ .Values.postgres.service.port }}
+    protocol: TCP
+{{- end }}

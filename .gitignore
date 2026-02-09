@@ -49,3 +49,13 @@ logs/
 *.db
 *.sqlite
 *.sqlite3
+
+# Kubernetes / Infrastructure
+infrastructure/diagnostics/
+*.tar.gz
+.vscode/settings.json
+.idea/
+*.iml
+
+# Docker
+.dockerignore

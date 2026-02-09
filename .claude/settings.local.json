@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(minikube start:*)",
+      "Bash(git -C \"c:\\\\Users\\\\SR Computers\\\\Desktop\\\\Todo-app-phase-2-and-3\" remote -v)",
+      "Bash(fc:*)",
+      "Bash(dir:*)",
+      "Bash(./venv/Scripts/pip install:*)",
+      "Bash(./venv/Scripts/python:*)",
+      "Bash(venvScriptspython test_tags_final.py)",
+      "Bash(venv/Scripts/python:*)",
+      "Bash(python:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run dev:*)",
+      "Bash(ping:*)",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5NjM5NTQ5ZC05NDAwLTQ3NzItYWM4Ny00YzYyMWNhMDQzMDYiLCJleHAiOjE3NzA1NzA5MDR9.x-pkoMT5T1uqrqWqhKOtbnrewar_3YKw4wL2QQEAL6M\")",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiMzY0MDUyOS0xNGU0LTQyNmYtOTQ3NS02ZDdmYzdkMjg0YTMiLCJleHAiOjE3NzA1NzEwMzh9.CZbolGcTsSfod0wBJCQUHRb7mFJeZRIFc95g3_ysKXY\")",
+      "Bash(taskkill:*)",
+      "Bash(npm install:*)"
+    ]
+  }
+}

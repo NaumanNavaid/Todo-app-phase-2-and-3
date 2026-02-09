@@ -127,12 +127,26 @@ export type ApiTaskStatus = 'pending' | 'in_progress' | 'done' | 'cancelled';
 export interface TaskCreate {
   title: string;
   description?: string;
+  priority?: 'low' | 'medium' | 'high' | 'urgent';
+  due_date?: string;
+  tag_ids?: string[];
 }
 
 export interface TaskUpdate {
   title?: string;
   description?: string;
   status?: ApiTaskStatus;
+  priority?: 'low' | 'medium' | 'high' | 'urgent';
+  due_date?: string | null;
+  tag_ids?: string[];
+}
+
+export interface TagPublic {
+  id: string;
+  user_id: string;
+  name: string;
+  color: string;
+  created_at: string;
 }
 
 export interface Task {
@@ -141,8 +155,25 @@ export interface Task {
   title: string;
   description: string | null;
   status: ApiTaskStatus;
+  priority: string;
+  due_date: string | null;
+  reminder_sent: boolean;
+  recurring_type: string;
+  recurring_end_date: string | null;
   created_at: string;
   updated_at: string;
+  tags: TagPublic[];
+}
+
+// Tag types
+export interface TagCreate {
+  name: string;
+  color?: string;
+}
+
+export interface TagUpdate {
+  name?: string;
+  color?: string;
 }
 
 // Chat types
@@ -302,6 +333,70 @@ export const taskApi = {
   },
 };
 
+// ==================== TAGS API ====================
+
+export const tagApi = {
+  /**
+   * Get all tags
+   * GET /api/tags
+   */
+  async getAll(): Promise<TagPublic[]> {
+    const response = await fetch(`${API_BASE_URL}/api/tags`, {
+      headers: authHeaders(),
+    });
+    return handleResponse<TagPublic[]>(response);
+  },
+
+  /**
+   * Get a single tag
+   * GET /api/tags/{id}
+   */
+  async getById(id: string): Promise<TagPublic> {
+    const response = await fetch(`${API_BASE_URL}/api/tags/${id}`, {
+      headers: authHeaders(),
+    });
+    return handleResponse<TagPublic>(response);
+  },
+
+  /**
+   * Create a new tag
+   * POST /api/tags
+   */
+  async create(tag: TagCreate): Promise<TagPublic> {
+    const response = await fetch(`${API_BASE_URL}/api/tags`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify(tag),
+    });
+    return handleResponse<TagPublic>(response);
+  },
+
+  /**
+   * Update a tag
+   * PUT /api/tags/{id}
+   */
+  async update(id: string, updates: TagUpdate): Promise<TagPublic> {
+    const response = await fetch(`${API_BASE_URL}/api/tags/${id}`, {
+      method: 'PUT',
+      headers: authHeaders(),
+      body: JSON.stringify(updates),
+    });
+    return handleResponse<TagPublic>(response);
+  },
+
+  /**
+   * Delete a tag
+   * DELETE /api/tags/{id}
+   */
+  async delete(id: string): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/api/tags/${id}`, {
+      method: 'DELETE',
+      headers: authHeaders(),
+    });
+    return handleResponse<void>(response);
+  },
+};
+
 // ==================== CHAT API ====================
 
 export interface ChatRequest {
@@ -402,6 +497,7 @@ export async function healthCheck(): Promise<boolean> {
 export default {
   auth: authApi,
   task: taskApi,
+  tag: tagApi,
   chat: chatApi,
   healthCheck,
 };

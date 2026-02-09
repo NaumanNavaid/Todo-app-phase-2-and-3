@@ -12,10 +12,12 @@ class Settings(BaseSettings):
     """Application settings"""
 
     # Database
-    database_url: str
+    # Hugging Face Spaces uses /data for persistent storage
+    # Local development uses ./todo.db
+    database_url: str = "sqlite:////data/todo.db"
 
     # JWT
-    secret_key: str
+    secret_key: str = "dev-secret-key-change-in-production"
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 60 * 24  # 24 hours
 
@@ -27,6 +29,14 @@ class Settings(BaseSettings):
 
     # OpenAI
     openai_api_key: str = ""
+
+    # SMTP Configuration
+    smtp_server: str = "smtp.gmail.com"
+    smtp_port: int = 587
+    smtp_username: str = ""
+    smtp_password: str = ""
+    from_email: str = "noreply@todoapp.com"
+    from_name: str = "Todo App"
 
     model_config = SettingsConfigDict(
         env_file=".env",

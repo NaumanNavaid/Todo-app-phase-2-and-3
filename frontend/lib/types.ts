@@ -1,5 +1,5 @@
 // Todo Types
-export type Priority = 'high' | 'medium' | 'low';
+export type Priority = 'urgent' | 'high' | 'medium' | 'low';
 export type TodoStatus = 'all' | 'pending' | 'in_progress' | 'done' | 'cancelled';
 export type ApiTaskStatus = 'pending' | 'in_progress' | 'done' | 'cancelled';
 
@@ -12,9 +12,18 @@ export interface Todo {
   priority: Priority;
   category: string;
   dueDate?: Date;
+  tags?: TagPublic[];
   createdAt: Date;
   updatedAt: Date;
   order: number;
+}
+
+export interface TagPublic {
+  id: string;
+  user_id: string;
+  name: string;
+  color: string;
+  created_at: string;
 }
 
 export interface Category {

@@ -1,0 +1,63 @@
+Thank you for installing {{ .Chart.Name }}!
+
+Your release is named {{ .Release.Name }}.
+
+To learn more about the release, try:
+
+  $ helm status {{ .Release.Name }}
+  $ helm get all {{ .Release.Name }}
+
+Application Details:
+
+1. Get the application URL by running these commands:
+{{- if .Values.ingress.enabled }}
+{{- range $host := .Values.ingress.hosts }}
+  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $host.host }}{{ $host.path }}
+{{- end }}
+{{- else if contains "NodePort" .Values.frontend.service.type }}
+
+  export NODE_PORT=$(kubectl get -n {{ .Values.global.namespace }} svc frontend -o jsonpath='{.spec.ports[0].nodePort}')
+  export NODE_IP=$(kubectl get nodes -o jsonpath='{.items[0].status.addresses[0].address}')
+
+  echo http://$NODE_IP:$NODE_PORT
+{{- else if contains "LoadBalancer" .Values.frontend.service.type }}
+
+  export SERVICE_IP=$(kubectl get svc -n {{ .Values.global.namespace }} frontend -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+
+  echo http://$SERVICE_IP:{{ .Values.frontend.service.port }}
+{{- else if contains "ClusterIP" .Values.frontend.service.type }}
+
+  export POD_NAME=$(kubectl get pods -n {{ .Values.global.namespace }} -l app=frontend -o jsonpath="{.items[0].metadata.name}")
+  export CONTAINER_PORT=$(kubectl get pod -n {{ .Values.global.namespace }} $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+
+  echo "Visit http://127.0.0.1:8080 to use your application"
+  kubectl -n {{ .Values.global.namespace }} port-forward $POD_NAME 8080:$CONTAINER_PORT
+{{- end }}
+
+2. Check the status of your deployment:
+
+  $ kubectl get pods -n {{ .Values.global.namespace }}
+  $ kubectl get services -n {{ .Values.global.namespace }}
+
+3. View the logs:
+
+  $ kubectl logs -n {{ .Values.global.namespace }} -l app=backend -f
+  $ kubectl logs -n {{ .Values.global.namespace }} -l app=frontend -f
+
+4. Access the backend API documentation:
+
+Backend API Docs:
+  $ kubectl port-forward -n {{ .Values.global.namespace }} svc/backend 8000:8000
+  Then open: http://localhost:8000/docs
+
+5. Scale the application:
+
+  $ kubectl scale deployment backend -n {{ .Values.global.namespace }} --replicas=3
+  $ kubectl scale deployment frontend -n {{ .Values.global.namespace }} --replicas=3
+
+6. Uninstall the chart:
+
+  $ helm uninstall {{ .Release.Name }}
+
+For more information, visit:
+  https://github.com/Nauman-19/Todo-app-phase-2-and-3

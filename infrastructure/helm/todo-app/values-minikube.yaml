@@ -1,0 +1,20 @@
+# Minikube-specific values for todo-app
+global:
+  environment: development
+  namespace: todo-app
+
+# Override services to use NodePort for local access
+backend:
+  service:
+    type: NodePort
+    nodePort: 30001
+
+frontend:
+  service:
+    type: NodePort
+    nodePort: 30000
+
+# Use standard storage class for Minikube
+postgres:
+  persistence:
+    storageClass: standard

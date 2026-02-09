@@ -1,0 +1,22 @@
+apiVersion: v2
+name: todo-app
+description: A Helm chart for AI-powered Todo application with Kubernetes deployment
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+
+keywords:
+  - todo
+  - ai
+  - chatbot
+  - fastapi
+  - nextjs
+
+maintainers:
+  - name: Nauman
+    email: nauman@example.com
+
+home: https://github.com/Nauman-19/Todo-app-phase-2-and-3
+
+sources:
+  - https://github.com/Nauman-19/Todo-app-phase-2-and-3

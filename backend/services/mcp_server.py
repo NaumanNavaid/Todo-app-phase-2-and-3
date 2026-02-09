@@ -86,7 +86,7 @@ def resolve_task_id(session: Session, user: User, task_id_str: str) -> UUID:
 
 # ==================== MCP Tools ====================
 
-def add_task_tool(session: Session, user_id_str: str, title: str, description: Optional[str] = None) -> Dict[str, Any]:
+def add_task_tool(session: Session, user_id_str: str, title: str, description: Optional[str] = None, tag_ids: Optional[List[str]] = None) -> Dict[str, Any]:
     """
     MCP Tool: Create a new task
 
@@ -95,12 +95,19 @@ def add_task_tool(session: Session, user_id_str: str, title: str, description: O
         user_id_str: User email or UUID string
         title: Task title
         description: Optional task description
+        tag_ids: Optional list of tag IDs to assign
 
     Returns:
         Dict with task_id, status, title
     """
     user = resolve_user_id(session, user_id_str)
-    task = create_task(session, user, title, description)
+
+    # Convert tag_ids to UUID list if provided
+    tag_uuids = None
+    if tag_ids:
+        tag_uuids = [UUID(tid) for tid in tag_ids]
+
+    task = create_task(session, user, title, description, tag_ids=tag_uuids)
 
     return {
         "task_id": str(task.id),
@@ -198,9 +205,10 @@ def delete_task_tool(session: Session, user_id_str: str, task_id_str: str) -> Di
 def update_task_tool(session: Session, user_id_str: str, task_id_str: str,
                     title: Optional[str] = None,
                     description: Optional[str] = None,
-                    status: Optional[str] = None) -> Dict[str, Any]:
+                    status: Optional[str] = None,
+                    tag_ids: Optional[List[str]] = None) -> Dict[str, Any]:
     """
-    MCP Tool: Modify task title, description, or status
+    MCP Tool: Modify task title, description, status, or tags
 
     Args:
         session: Database session
@@ -209,6 +217,7 @@ def update_task_tool(session: Session, user_id_str: str, task_id_str: str,
         title: Optional new title
         description: Optional new description
         status: Optional new status
+        tag_ids: Optional new list of tag IDs to assign
 
     Returns:
         Dict with task_id, status, title
@@ -216,7 +225,12 @@ def update_task_tool(session: Session, user_id_str: str, task_id_str: str,
     user = resolve_user_id(session, user_id_str)
     task_uuid = resolve_task_id(session, user, task_id_str)
 
-    task = update_task(session, task_uuid, user, title, description, status)
+    # Convert tag_ids to UUID list if provided
+    tag_uuids = None
+    if tag_ids:
+        tag_uuids = [UUID(tid) for tid in tag_ids]
+
+    task = update_task(session, task_uuid, user, title, description, status, tag_ids=tag_uuids)
 
     return {
         "task_id": str(task.id),
@@ -227,16 +241,43 @@ def update_task_tool(session: Session, user_id_str: str, task_id_str: str,
     }
 
 
+def list_tags_tool(session: Session, user_id_str: str) -> List[Dict[str, Any]]:
+    """
+    MCP Tool: List all tags for the user
+
+    Args:
+        session: Database session
+        user_id_str: User email or UUID string
+
+    Returns:
+        List of tag objects with id, name, and color
+    """
+    from services.tag_service import list_tags
+
+    user = resolve_user_id(session, user_id_str)
+    tags = list_tags(session, user)
+
+    return [
+        {
+            "id": str(tag.id),
+            "name": tag.name,
+            "color": tag.color
+        }
+        for tag in tags
+    ]
+
+
 # ==================== MCP Tool Registry ====================
 
 MCP_TOOLS = {
     "add_task": {
         "name": "add_task",
-        "description": "Create a new task with a title and optional description",
+        "description": "Create a new task with a title, optional description, and optional tag IDs",
         "parameters": {
             "user_id": {"type": "string", "required": True},
             "title": {"type": "string", "required": True},
-            "description": {"type": "string", "required": False}
+            "description": {"type": "string", "required": False},
+            "tag_ids": {"type": "array", "items": {"type": "string"}, "required": False}
         },
         "function": add_task_tool
     },
@@ -269,15 +310,24 @@ MCP_TOOLS = {
     },
     "update_task": {
         "name": "update_task",
-        "description": "Update a task's title, description, or status",
+        "description": "Update a task's title, description, status, or tags",
         "parameters": {
             "user_id": {"type": "string", "required": True},
             "task_id": {"type": "string", "required": True},
             "title": {"type": "string", "required": False},
             "description": {"type": "string", "required": False},
-            "status": {"type": "string", "required": False, "enum": ["pending", "in_progress", "done", "cancelled"]}
+            "status": {"type": "string", "required": False, "enum": ["pending", "in_progress", "done", "cancelled"]},
+            "tag_ids": {"type": "array", "items": {"type": "string"}, "required": False}
         },
         "function": update_task_tool
+    },
+    "list_tags": {
+        "name": "list_tags",
+        "description": "List all tags for the user (returns id, name, and color for each tag)",
+        "parameters": {
+            "user_id": {"type": "string", "required": True}
+        },
+        "function": list_tags_tool
     }
 }
 

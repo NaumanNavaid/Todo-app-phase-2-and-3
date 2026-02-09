@@ -50,6 +50,9 @@ class UserPublic(BaseModel):
     email: str
     name: Optional[str] = None
     created_at: datetime
+    email_notifications_enabled: bool = True
+    reminder_hours_before: int = 24
+    reminder_time_preference: str = "09:00"
 
 
 # ==================== Task Schemas ====================
@@ -59,6 +62,13 @@ class TaskCreate(BaseModel):
 
     title: str = Field(min_length=1, max_length=200)
     description: Optional[str] = Field(None, max_length=1000)
+    status: str = Field(default="pending", pattern="^(pending|in_progress|done|cancelled)$")
+    priority: str = Field(default="medium", pattern="^(low|medium|high|urgent)$")
+    due_date: Optional[datetime] = None
+    recurring_type: str = Field(default="none", pattern="^(none|daily|weekly|monthly)$")
+    recurring_end_date: Optional[datetime] = None
+    tag_ids: list[UUID] = Field(default_factory=list)
+    parent_task_id: Optional[UUID] = None
 
 
 class TaskUpdate(BaseModel):
@@ -67,6 +77,12 @@ class TaskUpdate(BaseModel):
     title: Optional[str] = Field(None, min_length=1, max_length=200)
     description: Optional[str] = Field(None, max_length=1000)
     status: Optional[str] = Field(None, pattern="^(pending|in_progress|done|cancelled)$")
+    priority: Optional[str] = Field(None, pattern="^(low|medium|high|urgent)$")
+    due_date: Optional[datetime] = None
+    recurring_type: Optional[str] = Field(None, pattern="^(none|daily|weekly|monthly)$")
+    recurring_end_date: Optional[datetime] = None
+    tag_ids: Optional[list[UUID]] = None
+    parent_task_id: Optional[UUID] = None
 
 
 class TaskPublic(BaseModel):
@@ -77,8 +93,41 @@ class TaskPublic(BaseModel):
     title: str
     description: Optional[str] = None
     status: str
+    priority: str
+    due_date: Optional[datetime] = None
+    reminder_sent: bool
+    recurring_type: str
+    recurring_end_date: Optional[datetime] = None
+    parent_task_id: Optional[UUID] = None
     created_at: datetime
     updated_at: datetime
+    tags: list["TagPublic"] = []
+
+
+# ==================== Tag Schemas ====================
+
+class TagCreate(BaseModel):
+    """Schema for creating a tag"""
+
+    name: str = Field(min_length=1, max_length=50)
+    color: str = Field(default="#3B82F6", max_length=7)
+
+
+class TagUpdate(BaseModel):
+    """Schema for updating a tag"""
+
+    name: Optional[str] = Field(None, min_length=1, max_length=50)
+    color: Optional[str] = Field(None, max_length=7)
+
+
+class TagPublic(BaseModel):
+    """Public tag information"""
+
+    id: UUID
+    user_id: UUID
+    name: str
+    color: str
+    created_at: datetime
 
 
 # ==================== Error Schemas ====================

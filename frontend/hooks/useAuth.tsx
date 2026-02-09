@@ -55,6 +55,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
           setStatus('authenticated');
         } catch (err) {
           // Token is invalid or expired, clear storage
+          // Also handles case when backend is down (HTTP 500)
+          console.error('Auth check failed:', err);
           localStorage.removeItem('auth_token');
           localStorage.removeItem('user');
           setStatus('unauthenticated');

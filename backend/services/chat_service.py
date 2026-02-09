@@ -29,14 +29,15 @@ logger = logging.getLogger(__name__)
 
 
 # Agent instructions
-AGENT_INSTRUCTIONS = """You are a helpful todo assistant. You can help users manage their tasks.
+AGENT_INSTRUCTIONS = """You are a helpful todo assistant. You can help users manage their tasks and tags.
 
 Available operations:
-- add_task: Create a new task with a title and optional description
+- add_task: Create a new task with title, description, and optional tag IDs
 - list_tasks: Show all tasks or filter by status (pending, in_progress, done, cancelled)
+- list_tags: Show all available tags with their IDs and colors
 - complete_task: Mark a task as complete (sets status to 'done')
 - delete_task: Remove a task from the list
-- update_task: Change a task's title, description, or status
+- update_task: Change a task's title, description, status, or tags
 
 Guidelines:
 - Be friendly and helpful
@@ -45,12 +46,19 @@ Guidelines:
 - If a task isn't found, let the user know
 - Use natural language - don't mention "tools" or "MCP"
 - For task IDs, users can refer to tasks by number (1, 2, 3...) from the list
+- When users mention tags or categories, use list_tags first to get available tag IDs, then use those IDs when creating/updating tasks
+- If a user asks to add a tag to a task but the tag doesn't exist, let them know they need to create it through the API first
 
 Task statuses:
 - pending: Not yet started
 - in_progress: Currently being worked on
 - done: Completed
 - cancelled: Cancelled
+
+Tag usage:
+- Use list_tags to see all available tags with their IDs
+- When creating or updating tasks, include tag_ids as a list of tag ID strings
+- Tags help organize and categorize tasks
 """
 
 
@@ -163,18 +171,25 @@ def create_mcp_tools(user_id: str):
 
     # Tool: add_task
     @function_tool
-    async def add_task(title: str, description: str = "") -> str:
-        """Create a new task with a title and optional description.
+    async def add_task(title: str, description: str = "", tag_ids: list[str] = None) -> str:
+        """Create a new task with a title, optional description, and optional tag IDs.
 
         Args:
             title: The title of the task
             description: Optional description of the task
+            tag_ids: Optional list of tag IDs to assign (use list_tags to see available tags)
+
+        Note: Tag IDs should be obtained from the list_tags function
         """
         try:
+            kwargs = {"user_id": user_id, "title": title, "description": description}
+            if tag_ids:
+                kwargs["tag_ids"] = tag_ids
+
             result = await asyncio.to_thread(
                 run_mcp_tool_sync,
                 "add_task",
-                {"user_id": user_id, "title": title, "description": description}
+                kwargs
             )
             logger.info(f"add_task result: {result}")
             return f"Task created successfully: {result['title']}"
@@ -258,14 +273,15 @@ def create_mcp_tools(user_id: str):
 
     # Tool: update_task
     @function_tool
-    async def update_task(task_id: str, title: str = "", description: str = "", status: str = "") -> str:
-        """Update a task's title, description, or status. Use task number from list.
+    async def update_task(task_id: str, title: str = "", description: str = "", status: str = "", tag_ids: list[str] = None) -> str:
+        """Update a task's title, description, status, or tags. Use task number from list.
 
         Args:
             task_id: The ID of the task to update
             title: New title (optional)
             description: New description (optional)
             status: New status - one of: pending, in_progress, done, cancelled (optional)
+            tag_ids: New list of tag IDs to assign (optional, use list_tags to see available tags)
         """
         try:
             kwargs = {"user_id": user_id, "task_id": task_id}
@@ -275,6 +291,8 @@ def create_mcp_tools(user_id: str):
                 kwargs["description"] = description
             if status:
                 kwargs["status"] = status
+            if tag_ids:
+                kwargs["tag_ids"] = tag_ids
             result = await asyncio.to_thread(
                 run_mcp_tool_sync,
                 "update_task",
@@ -288,10 +306,37 @@ def create_mcp_tools(user_id: str):
 
     tools.append(update_task)
 
+    # Tool: list_tags
+    @function_tool
+    async def list_tags() -> str:
+        """List all available tags for this user.
+
+        Returns tag IDs, names, and colors that can be used when creating or updating tasks.
+        """
+        try:
+            result = await asyncio.to_thread(
+                run_mcp_tool_sync,
+                "list_tags",
+                {"user_id": user_id}
+            )
+            logger.info(f"list_tags result: {len(result)} tags")
+            # Format the result nicely for display
+            if not result:
+                return "No tags found. You can create tags through the API."
+            tag_list = []
+            for tag in result:
+                tag_list.append(f"- {tag['name']} (ID: {tag['id']}, Color: {tag['color']})")
+            return "Available tags:\n" + "\n".join(tag_list)
+        except Exception as e:
+            logger.error(f"list_tags error: {e}", exc_info=True)
+            raise Exception(f"Failed to list tags: {str(e)}")
+
+    tools.append(list_tags)
+
     return tools
 
 
-def process_chat_message(
+async def process_chat_message(
     session: Session,
     user: User,
     message_content: str,
@@ -346,8 +391,8 @@ def process_chat_message(
         tools=tools
     )
 
-    # Run the agent using Runner.run_sync (synchronous)
-    result = Runner.run_sync(
+    # Run the agent using Runner.run (async)
+    result = await Runner.run(
         agent,
         input=full_input
     )

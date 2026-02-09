@@ -1,0 +1,29 @@
+# Dapr Pub/Sub Component for Redpanda (Kafka)
+# This component enables Dapr to publish/subscribe to Kafka topics
+
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: kafka-pubsub
+  namespace: todo-app
+spec:
+  type: pubsub.kafka
+  version: v1
+  metadata:
+  # Kafka broker address
+  - name: brokers
+    value: "redpanda.kafka.svc.cluster.local:9092"
+  # Consumer group ID
+  - name: consumerGroup
+    value: "todo-app-consumer"
+  # Whether to publish messages with key
+  - name: publishKey
+    value: "task-events"
+  # Auto-create topic if it doesn't exist
+  - name: autoCreateTopic
+    value: "true"
+  # Consumer retry configuration
+  - name: initialOffset
+    value: "newest"
+  - name: maxMessageBytes
+    value: "1024"

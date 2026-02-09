@@ -1,0 +1,102 @@
+# Redpanda (Kafka) Deployment for Todo App
+# Single-node Redpanda cluster for development/testing
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kafka
+  labels:
+    name: kafka
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redpanda
+  namespace: kafka
+  labels:
+    app: redpanda
+spec:
+  ports:
+  - port: 9092
+    name: kafka
+    targetPort: 9092
+  - port: 9644
+    name: admin
+    targetPort: 9644
+  selector:
+    app: redpanda
+  clusterIP: None
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redpanda
+  namespace: kafka
+  labels:
+    app: redpanda
+spec:
+  serviceName: redpanda
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redpanda
+  template:
+    metadata:
+      labels:
+        app: redpanda
+    spec:
+      containers:
+      - name: redpanda
+        image: docker.redpanda.com/vectorized/redpanda:v23.2.6
+        ports:
+        - containerPort: 9092
+          name: kafka
+        - containerPort: 9644
+          name: admin
+        command:
+        - redpanda
+        - start
+        - --overprovisioned
+        - --smp
+        - 1
+        - --memory
+        - 1G
+        - --reserve-memory
+        - 0M
+        - --node-id
+        - 0
+        - --check=false
+        - --kafka-addr
+        - 0.0.0.0:9092
+        - --advertise-kafka-addr
+        - redpanda-0.redpanda.kafka.svc.cluster.local:9092
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/redpanda/data
+        livenessProbe:
+          httpGet:
+            path: /v1/status/ready
+            port: 9644
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /v1/status/ready
+            port: 9644
+          initialDelaySeconds: 10
+          periodSeconds: 10
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi

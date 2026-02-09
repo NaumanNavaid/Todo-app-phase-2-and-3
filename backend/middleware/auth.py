@@ -6,6 +6,7 @@ from typing import Optional
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlmodel import Session
+from uuid import UUID
 
 from db import get_session
 from models import User
@@ -49,8 +50,11 @@ async def get_current_user(
         if user_id is None:
             raise AuthError("Invalid token payload")
 
+        # Convert string to UUID for database query
+        user_id_uuid = UUID(user_id)
+
         # Get user from database
-        user = session.get(User, user_id)
+        user = session.get(User, user_id_uuid)
         if user is None:
             raise NotFoundError("User")
 

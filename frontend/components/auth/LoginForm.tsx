@@ -36,14 +36,14 @@ export function LoginForm({ onSuccess, onSwitchToSignup }: LoginFormProps) {
   };
 
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full max-w-md glass-card border-border/50">
       <CardHeader>
         <div className="text-center">
-          <div className="w-16 h-16 rounded-xl bg-slate-700 flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-500/30">
             <span className="text-3xl text-white">✓</span>
           </div>
-          <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">Welcome Back</h2>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+          <h2 className="text-2xl font-bold text-foreground">Welcome Back</h2>
+          <p className="text-sm text-muted-foreground mt-1">
             Sign in to your account to continue
           </p>
         </div>
@@ -52,8 +52,8 @@ export function LoginForm({ onSuccess, onSwitchToSignup }: LoginFormProps) {
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
-            <div className="p-3 rounded-lg bg-red-50 border border-red-200">
-              <p className="text-sm text-red-600">{error}</p>
+            <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20">
+              <p className="text-sm text-destructive">{error}</p>
             </div>
           )}
 
@@ -80,13 +80,13 @@ export function LoginForm({ onSuccess, onSwitchToSignup }: LoginFormProps) {
             <label className="flex items-center gap-2">
               <input
                 type="checkbox"
-                className="rounded border-slate-300 text-indigo-500 focus:ring-indigo-500"
+                className="rounded border-border bg-background text-primary focus:ring-2 focus:ring-ring"
               />
-              <span className="text-slate-600">Remember me</span>
+              <span className="text-muted-foreground">Remember me</span>
             </label>
             <a
               href="#"
-              className="text-indigo-600 hover:text-indigo-700"
+              className="text-primary hover:text-primary/80 transition-colors"
             >
               Forgot password?
             </a>
@@ -94,18 +94,18 @@ export function LoginForm({ onSuccess, onSwitchToSignup }: LoginFormProps) {
 
           <Button
             type="submit"
-            className="w-full"
+            className="w-full shadow-lg shadow-primary/20"
             disabled={isLoading}
           >
             {isLoading ? 'Signing in...' : 'Sign In'}
           </Button>
 
-          <div className="text-center text-sm text-slate-500">
+          <div className="text-center text-sm text-muted-foreground">
             Don't have an account?{' '}
             <button
               type="button"
               onClick={onSwitchToSignup}
-              className="text-indigo-600 hover:text-indigo-700 font-medium"
+              className="text-primary hover:text-primary/80 font-medium transition-colors"
             >
               Sign up
             </button>
@@ -113,16 +113,16 @@ export function LoginForm({ onSuccess, onSwitchToSignup }: LoginFormProps) {
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-200" />
+              <div className="w-full border-t border-border" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-slate-500">
+              <span className="px-2 bg-card text-muted-foreground">
                 Demo Account
               </span>
             </div>
           </div>
 
-          <div className="text-center text-xs text-slate-500">
+          <div className="text-center text-xs text-muted-foreground bg-muted/30 rounded-lg p-3">
             <p>Use any email with password ≥ 6 characters</p>
             <p className="mt-1">Example: demo@example.com / password123</p>
           </div>

@@ -15,15 +15,13 @@ interface TodoListProps {
 export function TodoList({ todos, onToggleComplete, onSetStatus, onEdit, onDelete }: TodoListProps) {
   if (todos.length === 0) {
     return (
-      <div className="text-center py-12">
-        <div className="text-4xl mb-4">📝</div>
-        <h3 className="text-lg font-medium text-slate-900 mb-2">
-          No todos found
+      <div className="text-center py-16 glass-card rounded-xl">
+        <div className="text-6xl mb-4">📝</div>
+        <h3 className="text-lg font-semibold text-foreground mb-2">
+          No tasks found
         </h3>
-        <p className="text-sm text-slate-500">
-          {todos.length === 0
-            ? 'Create your first todo to get started!'
-            : 'Try adjusting your filters to find what you\'re looking for.'}
+        <p className="text-sm text-muted-foreground">
+          Create your first task to get started!
         </p>
       </div>
     );
@@ -31,14 +29,14 @@ export function TodoList({ todos, onToggleComplete, onSetStatus, onEdit, onDelet
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-      {todos.map((todo) => (
+      {todos.map((todo, index) => (
         <TodoCard
           key={todo.id}
           todo={todo}
-          onToggleComplete={onToggleComplete}
           onSetStatus={onSetStatus}
           onEdit={onEdit}
           onDelete={onDelete}
+          index={index}
         />
       ))}
     </div>

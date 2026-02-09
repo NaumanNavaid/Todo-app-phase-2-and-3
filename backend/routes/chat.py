@@ -17,7 +17,7 @@ router = APIRouter(prefix="/api", tags=["chat"])
 
 
 @router.post("/{user_id}/chat", response_model=ChatResponse)
-def chat(
+async def chat(
     user_id: UUID,
     request: ChatRequest,
     session: Session = Depends(get_session),
@@ -55,7 +55,7 @@ def chat(
         )
 
     try:
-        response = process_chat_message(
+        response = await process_chat_message(
             session=session,
             user=current_user,
             message_content=request.message,

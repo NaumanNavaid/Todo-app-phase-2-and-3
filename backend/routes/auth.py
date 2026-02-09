@@ -40,7 +40,7 @@ async def register(
     except ConflictError as e:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail={"error": e.message, "detail": e.detail}
+            detail={"error": e.message}
         )
 
 
@@ -78,7 +78,7 @@ async def login(
     except AuthError as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail={"error": e.message, "detail": e.detail},
+            detail={"error": e.message},
             headers={"WWW-Authenticate": "Bearer"}
         )
 

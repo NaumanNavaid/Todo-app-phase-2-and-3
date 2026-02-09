@@ -15,7 +15,12 @@
       "Bash(cmd //c \"taskkill /F /IM python.exe\")",
       "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5NGM0ODJlMi03MDhiLTRiYTMtYTIyMC0yM2I2ZjE2MzdlNDciLCJleHAiOjE3NjkwMjg0NTF9.QCVOR5NcodHU2gb0TNEycZ4NqeXxV4fg2SjU98ui0xU\")",
       "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0YWMxOGM3Yi01MjA1LTQ4YmEtYmI3Yy1mN2E1NDEyNjg5OTYiLCJleHAiOjE3NjkwOTI0MjV9.McHCvdfeezXeEq9i1-dBsbpAf1iWX2QViuPDS2lEdpg\")",
-      "Bash(timeout:*)"
+      "Bash(timeout:*)",
+      "Bash(pip install:*)",
+      "Bash(set:*)",
+      "Bash(git commit:*)",
+      "Bash(git add:*)",
+      "Bash(git push:*)"
     ]
   }
 }

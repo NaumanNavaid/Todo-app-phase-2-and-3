@@ -1,8 +1,9 @@
 import { type ClassValue, clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
 
-// Conditional class name utility
+// Conditional class name utility with tailwind-merge
 export function cn(...inputs: ClassValue[]) {
-  return clsx(inputs);
+  return twMerge(clsx(inputs));
 }
 
 // Format date for display
@@ -25,39 +26,67 @@ export function formatDate(date: Date | undefined): string {
   });
 }
 
+// Format date to relative time (e.g., "2 days ago", "in 3 hours")
+export function formatRelativeTime(date: Date | string | undefined): string {
+  if (!date) return '';
+
+  const d = typeof date === 'string' ? new Date(date) : date;
+  const now = new Date();
+  const diffMs = d.getTime() - now.getTime();
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffMinutes = Math.floor(diffMs / (1000 * 60));
+
+  if (diffDays === 0 && diffHours === 0 && diffMinutes === 0) {
+    return 'Due now';
+  } else if (diffDays === 0 && diffHours === 0) {
+    return diffMinutes > 0 ? `Due in ${diffMinutes} min` : `${Math.abs(diffMinutes)} min ago`;
+  } else if (diffDays === 0) {
+    return diffHours > 0 ? `Due in ${diffHours}h` : `${Math.abs(diffHours)}h ago`;
+  } else if (diffDays > 0) {
+    return `Due in ${diffDays} day${diffDays > 1 ? 's' : ''}`;
+  } else if (diffDays === -1) {
+    return 'Due yesterday';
+  } else {
+    return `Overdue by ${Math.abs(diffDays)} days`;
+  }
+}
+
 // Check if todo is overdue
 export function isOverdue(dueDate: Date | undefined, completed: boolean): boolean {
   if (!dueDate || completed) return false;
   return dueDate < new Date();
 }
 
-// Get priority color class
+// Get priority color class (dark mode optimized)
 export function getPriorityColor(priority: string): string {
   switch (priority) {
+    case 'urgent':
+      return 'text-red-500 bg-red-500/10 border-red-500/20 hover:bg-red-500/20';
     case 'high':
-      return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400';
+      return 'text-orange-500 bg-orange-500/10 border-orange-500/20 hover:bg-orange-500/20';
     case 'medium':
-      return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400';
+      return 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20 hover:bg-yellow-500/20';
     case 'low':
-      return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
+      return 'text-green-500 bg-green-500/10 border-green-500/20 hover:bg-green-500/20';
     default:
-      return 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400';
+      return 'text-slate-400 bg-slate-500/10 border-slate-500/20 hover:bg-slate-500/20';
   }
 }
 
-// Get status color class
+// Get status color class (dark mode optimized)
 export function getStatusColor(status: string): string {
   switch (status) {
     case 'pending':
-      return 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400';
+      return 'text-slate-400 bg-slate-500/10 border-slate-500/20';
     case 'in_progress':
-      return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
+      return 'text-blue-500 bg-blue-500/10 border-blue-500/20';
     case 'done':
-      return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
+      return 'text-green-500 bg-green-500/10 border-green-500/20';
     case 'cancelled':
-      return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400';
+      return 'text-red-500 bg-red-500/10 border-red-500/20';
     default:
-      return 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400';
+      return 'text-slate-400 bg-slate-500/10 border-slate-500/20';
   }
 }
 

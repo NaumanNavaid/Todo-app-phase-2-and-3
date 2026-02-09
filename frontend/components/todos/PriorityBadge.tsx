@@ -10,16 +10,20 @@ interface PriorityBadgeProps {
 }
 
 const priorityConfig = {
+  urgent: {
+    label: '🔴 Urgent',
+    className: 'bg-red-500 text-white',
+  },
   high: {
-    label: 'High',
-    className: 'bg-red-100 text-red-700',
+    label: '🟠 High',
+    className: 'bg-orange-100 text-orange-700',
   },
   medium: {
-    label: 'Medium',
-    className: 'bg-amber-100 text-amber-700',
+    label: '🟡 Medium',
+    className: 'bg-yellow-100 text-yellow-700',
   },
   low: {
-    label: 'Low',
+    label: '🟢 Low',
     className: 'bg-green-100 text-green-700',
   },
 };

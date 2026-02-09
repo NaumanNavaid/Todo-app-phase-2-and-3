@@ -42,14 +42,14 @@ export function SignupForm({ onSuccess, onSwitchToLogin }: SignupFormProps) {
     credentials.name.trim() !== '';
 
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full max-w-md glass-card border-border/50">
       <CardHeader>
         <div className="text-center">
-          <div className="w-16 h-16 rounded-xl bg-slate-700 flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-500/30">
             <span className="text-3xl text-white">✓</span>
           </div>
-          <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">Create Account</h2>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+          <h2 className="text-2xl font-bold text-foreground">Create Account</h2>
+          <p className="text-sm text-muted-foreground mt-1">
             Start organizing your tasks today
           </p>
         </div>
@@ -58,8 +58,8 @@ export function SignupForm({ onSuccess, onSwitchToLogin }: SignupFormProps) {
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
-            <div className="p-3 rounded-lg bg-red-50 border border-red-200">
-              <p className="text-sm text-red-600">{error}</p>
+            <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20">
+              <p className="text-sm text-destructive">{error}</p>
             </div>
           )}
 
@@ -106,24 +106,24 @@ export function SignupForm({ onSuccess, onSwitchToLogin }: SignupFormProps) {
             }
           />
 
-          <div className="text-xs text-slate-500">
+          <div className="text-xs text-muted-foreground">
             <p>By signing up, you agree to our Terms of Service and Privacy Policy.</p>
           </div>
 
           <Button
             type="submit"
-            className="w-full"
+            className="w-full shadow-lg shadow-primary/20"
             disabled={isLoading || !isValid}
           >
             {isLoading ? 'Creating account...' : 'Create Account'}
           </Button>
 
-          <div className="text-center text-sm text-slate-500">
+          <div className="text-center text-sm text-muted-foreground">
             Already have an account?{' '}
             <button
               type="button"
               onClick={onSwitchToLogin}
-              className="text-indigo-600 hover:text-indigo-700 font-medium"
+              className="text-primary hover:text-primary/80 font-medium transition-colors"
             >
               Sign in
             </button>

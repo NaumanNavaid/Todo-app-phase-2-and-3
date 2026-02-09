@@ -2,9 +2,14 @@
 Database connection and session management
 """
 
+import os
 from typing import Generator
 from sqlmodel import SQLModel, create_engine, Session
 from config import settings
+
+# Create /data directory if using persistent storage (Hugging Face Spaces)
+if settings.database_url.startswith("sqlite:////data/"):
+    os.makedirs("/data", exist_ok=True)
 
 # Create database engine
 engine = create_engine(
